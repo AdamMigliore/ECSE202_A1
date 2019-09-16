@@ -109,7 +109,7 @@ public class Bounce extends GraphicsProgram {
 			Xo = Xlast;// the offset will be equal to the last coordinate
 			Xlast = 0;// the last coordinate is now the beginning of the current parabola
 			Ylast = bSize;// the initial y coordinate is the radius of the ball
-
+			
 			if (TEST)
 				System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f\n", time, Xo + X, Y, Vx, Vy);
 		
