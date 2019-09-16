@@ -19,7 +19,7 @@ public class Bounce extends GraphicsProgram {
 	private static final double g = 9.8; // MKS gravitational constant 9.8 m/s^2
 	private static final double Pi = 3.141592654; // To convert degrees to radians
 	private static final double Xinit = 5.0; // Initial ball location (X)
-	private static final double Yinit = bSize; // Initial ball location (Y) -- must be changed by the input
+	private static final double Yinit = bSize; // Initial ball location (Y)
 	private static final double TICK = 0.1; // Clock tick duration (sec)
 	private static final double ETHR = 0.01; // If either Vx or Vy < ETHR STOP
 	private static final double XMAX = 100.0; // Maximum value of X
@@ -28,26 +28,28 @@ public class Bounce extends GraphicsProgram {
 	private static final double SCALE = HEIGHT / XMAX; // Pixels/meter
 	private static final double k = 0.0016;// constant K value
 	private static final boolean TEST = true;// print if test is true
+	private static final int GPHeight = 3;// height of our ground plane
 
 	// Simulation variables
-	private static double Vx, Vy, X, Y, Vox, Voy, time, Vt, ScrX, ScrY, Xlast = 0.00, Ylast = 0.00, ScrXlast = 0.00,
-			ScrYlast = 0.00, KEx=1.00, KEy=1.00, Xo;
+	private static double Vx, Vy, X, Y, Vox, Voy, time, Vt, ScrX, ScrY, Xlast = Xinit, Ylast = Yinit, KEx = 1.00,
+			KEy = 1.00, Xo = Xinit;
 
 	// Display components
-	GRect GROUND_PLANE;
-	GOval myBall;
+	private static GRect GROUND_PLANE;
+	private static GOval myBall;
 
 	public void run() {
-		this.resize(WIDTH, HEIGHT);
+		this.resize(WIDTH, HEIGHT + OFFSET);
 
 		inputParameters();
 		initialDisplay();
 		initializeParameters();
+		pause(500);
 
 		do {
 			calculateVariables();
-			myBall.setLocation(ScrX, ScrY);
 			addTracePoint();
+			myBall.setLocation(ScrX, ScrY);
 			pause(100);
 			if (KEy <= ETHR || KEx <= ETHR)
 				break;
@@ -56,12 +58,17 @@ public class Bounce extends GraphicsProgram {
 
 	// Creates and adds the ground plane to our canvas
 	private void initialDisplay() {
-		GROUND_PLANE = new GRect(0, HEIGHT - OFFSET, WIDTH, 3);// creates a ground plane @(0,600) of [600,3]
-																// (width,height)
+		GROUND_PLANE = new GRect(0, HEIGHT, WIDTH, GPHeight);// creates a ground plane @(0,600) of [600,3](width,height)
 		GROUND_PLANE.setFilled(true);// fills the plane
 		GROUND_PLANE.setColor(Color.black);// sets its color to black
 
-		myBall = new GOval(Xinit * SCALE, Yinit * SCALE, 2 * bSize, 2 * bSize);// places it at its intial coordinate
+		myBall = new GOval(Xinit * SCALE, HEIGHT - (2 * bSize * SCALE), 2 * bSize * SCALE, 2 * bSize * SCALE);// places
+																												// the
+																												// ball
+																												// at
+																												// its
+																												// initial
+																												// position
 		myBall.setFilled(true);// fill the ball
 		myBall.setColor(Color.blue);// set the color to blue
 
@@ -100,21 +107,17 @@ public class Bounce extends GraphicsProgram {
 	// Calculate X, Y, Vt
 	private void calculateVariables() {
 		if (Vy < 0 && Y <= bSize) {
-
 			KEx = 0.5 * Vx * Vx * (1 - loss); // Kinetic energy in X direction after collision
 			KEy = 0.5 * Vy * Vy * (1 - loss); // Kinetic energy in Y direction after collision
 			Vox = Math.sqrt(2 * KEx); // Resulting horizontal velocity
 			Voy = Math.sqrt(2 * KEy); // Resulting vertical velocity
-
-			Xo = Xlast;// the offset will be equal to the last coordinate
-			Xlast = 0;// the last coordinate is now the beginning of the current parabola
-			Ylast = bSize;// the initial y coordinate is the radius of the ball
-			
+			Xo = Xlast;// the offset will be equal to the last coordinate minus the beginning of the
+						// simulation
 			if (TEST)
 				System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f\n", time, Xo + X, Y, Vx, Vy);
-		
 			time = 0;// reset the time
 		}
+
 		time += TICK;
 
 		X = Xo + Vox * Vt / g * (1 - Math.exp(-g * time / Vt)); // X position
@@ -123,9 +126,7 @@ public class Bounce extends GraphicsProgram {
 		Vy = (Y - Ylast) / TICK; // Estimate Vy from difference
 
 		ScrX = (int) ((X - bSize) * SCALE);// Convert to simulation units
-		ScrY = (int) (HEIGHT - OFFSET - (Y + bSize) * SCALE);// Convert to simulation units
-		ScrXlast = (int) ((Xlast - bSize) * SCALE);// Convert to simulation units
-		ScrYlast = (int) (HEIGHT - OFFSET - (Ylast + bSize) * SCALE);// Convert to simulation units
+		ScrY = (int) (HEIGHT - (Y + bSize) * SCALE);// Convert to simulation units
 
 		Xlast = X;// save last X
 		Ylast = Y;// save last Y
@@ -133,7 +134,7 @@ public class Bounce extends GraphicsProgram {
 
 	// adds trace points to the simulation
 	private void addTracePoint() {
-		GOval tracePoint = new GOval(ScrXlast, ScrYlast, 2 * PD, 2 * PD);
+		GOval tracePoint = new GOval(ScrX, ScrY, PD, PD);
 		tracePoint.setFilled(true);
 		tracePoint.setColor(Color.black);
 		add(tracePoint);
