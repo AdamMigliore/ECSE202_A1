@@ -31,7 +31,7 @@ public class Bounce extends GraphicsProgram {
 	private static final int GPHeight = 3;// height of our ground plane
 
 	// Simulation variables
-	private static double Vx, Vy, X, Y, Vox, Voy, time, Vt, ScrX, ScrY, Xlast = Xinit, Ylast = Yinit, KEx = 1.00,
+	private static double Vx, Vy, X, Y, Vox, Voy, time, Vt, ScrX, ScrY, Xlast, Ylast, KEx = 1.00,
 			KEy = 1.00, Xo = Xinit;
 
 	// Display components
@@ -49,11 +49,10 @@ public class Bounce extends GraphicsProgram {
 		do {
 			calculateVariables();
 			addTracePoint();
-			myBall.setLocation(ScrX, ScrY);
 			pause(100);
-			if (KEy <= ETHR || KEx <= ETHR)
+			if (KEy <= ETHR | KEx <= ETHR)
 				break;
-		} while (Vx > ETHR || Vy > ETHR);
+		} while (Vx > ETHR | Vy > ETHR);
 	}
 
 	// Creates and adds the ground plane to our canvas
@@ -70,7 +69,7 @@ public class Bounce extends GraphicsProgram {
 																												// initial
 																												// position
 		myBall.setFilled(true);// fill the ball
-		myBall.setColor(Color.blue);// set the color to blue
+		myBall.setColor(Color.red);// set the color to blue
 
 		add(myBall);// adds the ball to the canvas
 		add(GROUND_PLANE);// adds the plane to the canvas
@@ -101,7 +100,7 @@ public class Bounce extends GraphicsProgram {
 	private void initializeParameters() {
 		Vt = g / (4 * Pi * bSize * bSize * k); // Terminal velocity
 		Vox = Vo * Math.cos(theta * Pi / 180);// Initial velocity in X
-		Voy = Vo * Math.sin(theta * Pi / 100);// Initial velocity in Y
+		Voy = Vo * Math.sin(theta * Pi / 180);// Initial velocity in Y
 	}
 
 	// Calculate X, Y, Vt
@@ -113,20 +112,19 @@ public class Bounce extends GraphicsProgram {
 			Voy = Math.sqrt(2 * KEy); // Resulting vertical velocity
 			Xo = Xlast;// the offset will be equal to the last coordinate minus the beginning of the
 						// simulation
-			if (TEST)
-				System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f\n", time, Xo + X, Y, Vx, Vy);
 			time = 0;// reset the time
 		}
 
-		time += TICK;
+		time += TICK;// increase time by a tick
 
-		X = Xo + Vox * Vt / g * (1 - Math.exp(-g * time / Vt)); // X position
-		Y = bSize + Vt / g * (Voy + Vt) * (1 - Math.exp(-g * time / Vt)) - Vt * time; // Y position
-		Vx = (X - Xlast) / TICK; // Estimate Vx from difference
-		Vy = (Y - Ylast) / TICK; // Estimate Vy from difference
+		X = Xo + Vox * Vt / g * (1 - Math.exp(-g * time / Vt));
+		Y = bSize + Vt / g * (Voy + Vt) * (1 - Math.exp(-g * time / Vt)) - Vt * time;
+		Vx = (X - Xlast) / TICK;
+		Vy = (Y - Ylast) / TICK;
 
-		ScrX = (int) ((X - bSize) * SCALE);// Convert to simulation units
-		ScrY = (int) (HEIGHT - (Y + bSize) * SCALE);// Convert to simulation units
+		ScrX = (int) ((X - bSize) * SCALE);
+		ScrY = (int) (HEIGHT - (Y + bSize) * SCALE);
+		myBall.setLocation(ScrX, ScrY);
 
 		Xlast = X;// save last X
 		Ylast = Y;// save last Y
