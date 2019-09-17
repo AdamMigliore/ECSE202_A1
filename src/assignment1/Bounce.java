@@ -31,8 +31,14 @@ public class Bounce extends GraphicsProgram {
 	private static final int GPHeight = 3;// height of our ground plane
 
 	// Simulation variables
-	private static double Vx, Vy, X, Y, Vox, Voy, time, Vt, ScrX, ScrY, Xlast, Ylast, KEx = 1.00,
-			KEy = 1.00, Xo = Xinit;
+	private static double Vx, Vy, X, Y, Vox, Voy, time, Vt, 
+	ScrX, 
+	ScrY, 
+	Xlast, 
+	Ylast, 
+	KEx = 1.00,
+	KEy = 1.00, 
+	Xo = Xinit;
 
 	// Display components
 	private static GRect GROUND_PLANE;
@@ -44,11 +50,11 @@ public class Bounce extends GraphicsProgram {
 		inputParameters();
 		initialDisplay();
 		initializeParameters();
-		pause(500);
-
+		pause(1500);
+		
 		do {
-			calculateVariables();
 			addTracePoint();
+			calculateVariables();
 			pause(100);
 			if (KEy <= ETHR | KEx <= ETHR)
 				break;
@@ -70,7 +76,7 @@ public class Bounce extends GraphicsProgram {
 																												// position
 		myBall.setFilled(true);// fill the ball
 		myBall.setColor(Color.red);// set the color to blue
-
+		
 		add(myBall);// adds the ball to the canvas
 		add(GROUND_PLANE);// adds the plane to the canvas
 	}
@@ -132,7 +138,7 @@ public class Bounce extends GraphicsProgram {
 
 	// adds trace points to the simulation
 	private void addTracePoint() {
-		GOval tracePoint = new GOval(ScrX, ScrY, PD, PD);
+		GOval tracePoint = new GOval(myBall.getX()+(bSize*SCALE), myBall.getY()+(bSize*SCALE), PD, PD);
 		tracePoint.setFilled(true);
 		tracePoint.setColor(Color.black);
 		add(tracePoint);
