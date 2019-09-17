@@ -31,14 +31,8 @@ public class Bounce extends GraphicsProgram {
 	private static final int GPHeight = 3;// height of our ground plane
 
 	// Simulation variables
-	private static double Vx, Vy, X, Y, Vox, Voy, time, Vt, 
-	ScrX, 
-	ScrY, 
-	Xlast, 
-	Ylast, 
-	KEx = 1.00,
-	KEy = 1.00, 
-	Xo = Xinit;
+	private static double Vx, Vy, X, Y, Vox, Voy, time, Vt, ScrX, ScrY, Xlast, Ylast, KEx = 1.00, KEy = 1.00,
+			Xo = Xinit, Yo = Yinit;
 
 	// Display components
 	private static GRect GROUND_PLANE;
@@ -51,14 +45,23 @@ public class Bounce extends GraphicsProgram {
 		initialDisplay();
 		initializeParameters();
 		pause(1500);
-		
+
 		do {
-			addTracePoint();
+			
 			calculateVariables();
-			pause(100);
-			if (KEy <= ETHR | KEx <= ETHR)
+			addTracePoint();
+			myBall.setLocation(ScrX, ScrY);
+			time += TICK;// increase time by a tick
+			pause(TICK * 1000);
+
+			if (Vy < 0 && Y <= bSize) {
+				if (TEST)
+					System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f\n", time, Xo + X, Y, Vx, Vy);
+			}
+
+			if (KEy <= ETHR || KEx <= ETHR)
 				break;
-		} while (Vx > ETHR | Vy > ETHR);
+		} while (Vx > ETHR || Math.abs(Vy) >= 0);
 	}
 
 	// Creates and adds the ground plane to our canvas
@@ -68,15 +71,15 @@ public class Bounce extends GraphicsProgram {
 		GROUND_PLANE.setColor(Color.black);// sets its color to black
 
 		myBall = new GOval(Xinit * SCALE, HEIGHT - (2 * bSize * SCALE), 2 * bSize * SCALE, 2 * bSize * SCALE);// places
-																												// the
-																												// ball
-																												// at
-																												// its
-																												// initial
-																												// position
+																								// the
+																								// ball
+																								// at
+																								// its
+																								// initial
+																								// position
 		myBall.setFilled(true);// fill the ball
 		myBall.setColor(Color.red);// set the color to blue
-		
+
 		add(myBall);// adds the ball to the canvas
 		add(GROUND_PLANE);// adds the plane to the canvas
 	}
@@ -119,26 +122,28 @@ public class Bounce extends GraphicsProgram {
 			Xo = Xlast;// the offset will be equal to the last coordinate minus the beginning of the
 						// simulation
 			time = 0;// reset the time
+			Yo = bSize;
 		}
 
-		time += TICK;// increase time by a tick
+		X = Xo + Vox * Vt / g * (1 - Math.exp(-g * time / Vt));// calculate X
+		Y = Yo + Vt / g * (Voy + Vt) * (1 - Math.exp(-g * time / Vt)) - Vt * time;// Calculate Y
+		Vx = (X - Xlast) / TICK;// Calculate horizontal velocity
+		Vy = (Y - Ylast) / TICK;// calculate vertical velocity
 
-		X = Xo + Vox * Vt / g * (1 - Math.exp(-g * time / Vt));
-		Y = bSize + Vt / g * (Voy + Vt) * (1 - Math.exp(-g * time / Vt)) - Vt * time;
-		Vx = (X - Xlast) / TICK;
-		Vy = (Y - Ylast) / TICK;
-
-		ScrX = (int) ((X - bSize) * SCALE);
-		ScrY = (int) (HEIGHT - (Y + bSize) * SCALE);
-		myBall.setLocation(ScrX, ScrY);
-
+		ScrX = (int) ((X) * SCALE);// convert to screen units
+		ScrY = (int) (HEIGHT - (Y + bSize) * SCALE);// convert to screen units
 		Xlast = X;// save last X
 		Ylast = Y;// save last Y
 	}
 
 	// adds trace points to the simulation
 	private void addTracePoint() {
-		GOval tracePoint = new GOval(myBall.getX()+(bSize*SCALE), myBall.getY()+(bSize*SCALE), PD, PD);
+		GOval tracePoint = new GOval(myBall.getX() + (bSize * SCALE), myBall.getY() + (bSize * SCALE), PD, PD);// follows
+																												// the
+																												// center
+																												// of
+																												// the
+																												// ball
 		tracePoint.setFilled(true);
 		tracePoint.setColor(Color.black);
 		add(tracePoint);
