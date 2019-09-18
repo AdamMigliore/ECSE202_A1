@@ -32,7 +32,7 @@ public class Bounce extends GraphicsProgram {
 
 	// Simulation variables
 	private static double Vx, Vy, X, Y, Vox, Voy, time, Vt, ScrX, ScrY, Xlast, Ylast, KEx = 1.00, KEy = 1.00,
-			Xo = Xinit, Yo = Yinit;
+			Xo = Xinit, Yo;
 
 	// Display components
 	private static GRect GROUND_PLANE;
@@ -49,20 +49,17 @@ public class Bounce extends GraphicsProgram {
 		do {
 
 			calculateVariables();
+			myBall.setLocation(ScrX, ScrY);
 			addTracePoint();
-
-			if (TEST)
-				System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f ScrX:%.2f ScrY:%.2f\n", time, Xo + X, Y, Vx,
-						Vy, ScrX, ScrY);
+			pause(TICK * 1000);
 
 			if (Vy < 0 && Y <= bSize) {
 				if (TEST)
 					System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f\n", time, Xo + X, Y, Vx, Vy);
 			}
-
-			myBall.setLocation(ScrX, ScrY);
+			
 			time += TICK;// increase time by a tick
-			pause(TICK * 1000);
+			
 			if (KEy <= ETHR || KEx <= ETHR)
 				break;
 		} while (Vx > ETHR || Math.abs(Vy) >= 0);
@@ -111,6 +108,7 @@ public class Bounce extends GraphicsProgram {
 
 	// initializes initial simulation variables
 	private void initializeParameters() {
+		Yo=bSize;
 		Vt = g / (4 * Pi * bSize * bSize * k); // Terminal velocity
 		Vox = Vo * Math.cos(theta * Pi / 180);// Initial velocity in X
 		Voy = Vo * Math.sin(theta * Pi / 180);// Initial velocity in Y
@@ -118,6 +116,11 @@ public class Bounce extends GraphicsProgram {
 
 	// Calculate X, Y, Vt
 	private void calculateVariables() {
+		X = Xo + Vox * Vt / g * (1 - Math.exp(-g * time / Vt));// calculate X
+		Y = Yo + Vt / g * (Voy + Vt) * (1 - Math.exp(-g * time / Vt)) - Vt * time;// Calculate Y
+		Vx = (X - Xlast) / TICK;// Calculate horizontal velocity
+		Vy = (Y - Ylast) / TICK;// calculate vertical velocity
+
 		if (Vy < 0 && Y <= bSize) {
 			KEx = 0.5 * Vx * Vx * (1 - loss); // Kinetic energy in X direction after collision
 			KEy = 0.5 * Vy * Vy * (1 - loss); // Kinetic energy in Y direction after collision
@@ -129,15 +132,11 @@ public class Bounce extends GraphicsProgram {
 			Yo = bSize;
 			Ylast = bSize;
 			Xlast = 0;
+			Y=Yo;
 		}
-
-		X = Xo + Vox * Vt / g * (1 - Math.exp(-g * time / Vt));// calculate X
-		Y = Yo + Vt / g * (Voy + Vt) * (1 - Math.exp(-g * time / Vt)) - Vt * time;// Calculate Y
-		Vx = (X - Xlast) / TICK;// Calculate horizontal velocity
-		Vy = (Y - Ylast) / TICK;// calculate vertical velocity
-
+		
 		ScrX = (int) ((X) * SCALE);// convert to screen units
-		ScrY = (int) (HEIGHT - (Y + 2 * bSize) * SCALE);// convert to screen units
+		ScrY = (int) (HEIGHT - (Y + bSize) * SCALE);// convert to screen units
 		Xlast = X;// save last X
 		Ylast = Y;// save last Y
 	}
