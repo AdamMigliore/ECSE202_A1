@@ -47,18 +47,22 @@ public class Bounce extends GraphicsProgram {
 		pause(1500);
 
 		do {
-			
+
 			calculateVariables();
 			addTracePoint();
-			myBall.setLocation(ScrX, ScrY);
-			time += TICK;// increase time by a tick
-			pause(TICK * 1000);
+
+			if (TEST)
+				System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f ScrX:%.2f ScrY:%.2f\n", time, Xo + X, Y, Vx,
+						Vy, ScrX, ScrY);
 
 			if (Vy < 0 && Y <= bSize) {
 				if (TEST)
 					System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f\n", time, Xo + X, Y, Vx, Vy);
 			}
 
+			myBall.setLocation(ScrX, ScrY);
+			time += TICK;// increase time by a tick
+			pause(TICK * 1000);
 			if (KEy <= ETHR || KEx <= ETHR)
 				break;
 		} while (Vx > ETHR || Math.abs(Vy) >= 0);
@@ -71,12 +75,12 @@ public class Bounce extends GraphicsProgram {
 		GROUND_PLANE.setColor(Color.black);// sets its color to black
 
 		myBall = new GOval(Xinit * SCALE, HEIGHT - (2 * bSize * SCALE), 2 * bSize * SCALE, 2 * bSize * SCALE);// places
-																								// the
-																								// ball
-																								// at
-																								// its
-																								// initial
-																								// position
+		// the
+		// ball
+		// at
+		// its
+		// initial
+		// position
 		myBall.setFilled(true);// fill the ball
 		myBall.setColor(Color.red);// set the color to blue
 
@@ -123,6 +127,8 @@ public class Bounce extends GraphicsProgram {
 						// simulation
 			time = 0;// reset the time
 			Yo = bSize;
+			Ylast = bSize;
+			Xlast = 0;
 		}
 
 		X = Xo + Vox * Vt / g * (1 - Math.exp(-g * time / Vt));// calculate X
@@ -131,7 +137,7 @@ public class Bounce extends GraphicsProgram {
 		Vy = (Y - Ylast) / TICK;// calculate vertical velocity
 
 		ScrX = (int) ((X) * SCALE);// convert to screen units
-		ScrY = (int) (HEIGHT - (Y + bSize) * SCALE);// convert to screen units
+		ScrY = (int) (HEIGHT - (Y + 2 * bSize) * SCALE);// convert to screen units
 		Xlast = X;// save last X
 		Ylast = Y;// save last Y
 	}
