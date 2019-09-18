@@ -52,14 +52,7 @@ public class Bounce extends GraphicsProgram {
 			myBall.setLocation(ScrX, ScrY);
 			addTracePoint();
 			pause(TICK * 1000);
-
-			if (Vy < 0 && Y <= bSize) {
-				if (TEST)
-					System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f\n", time, Xo + X, Y, Vx, Vy);
-			}
-			
 			time += TICK;// increase time by a tick
-			
 			if (KEy <= ETHR || KEx <= ETHR)
 				break;
 		} while (Vx > ETHR || Math.abs(Vy) >= 0);
@@ -108,7 +101,7 @@ public class Bounce extends GraphicsProgram {
 
 	// initializes initial simulation variables
 	private void initializeParameters() {
-		Yo=bSize;
+		Yo = bSize;
 		Vt = g / (4 * Pi * bSize * bSize * k); // Terminal velocity
 		Vox = Vo * Math.cos(theta * Pi / 180);// Initial velocity in X
 		Voy = Vo * Math.sin(theta * Pi / 180);// Initial velocity in Y
@@ -122,6 +115,10 @@ public class Bounce extends GraphicsProgram {
 		Vy = (Y - Ylast) / TICK;// calculate vertical velocity
 
 		if (Vy < 0 && Y <= bSize) {
+			
+			if (TEST)
+				System.out.printf("t: %.2f X: %.2f Y: %.2f Vx: %.2f Vy:%.2f\n", time, Xo + X, Y, Vx, Vy);
+			
 			KEx = 0.5 * Vx * Vx * (1 - loss); // Kinetic energy in X direction after collision
 			KEy = 0.5 * Vy * Vy * (1 - loss); // Kinetic energy in Y direction after collision
 			Vox = Math.sqrt(2 * KEx); // Resulting horizontal velocity
@@ -132,9 +129,9 @@ public class Bounce extends GraphicsProgram {
 			Yo = bSize;
 			Ylast = bSize;
 			Xlast = 0;
-			Y=Yo;
+			Y = Yo;
 		}
-		
+
 		ScrX = (int) ((X) * SCALE);// convert to screen units
 		ScrY = (int) (HEIGHT - (Y + bSize) * SCALE);// convert to screen units
 		Xlast = X;// save last X
